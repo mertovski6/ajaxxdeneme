@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Oy Sayacı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .candidate-card {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .candidate-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+
+        .vote-btn {
+            margin-top: 10px;
+        }
+
+        .result-heading {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .result-card {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-card h5 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .result-card h3 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .table-container {
+            margin-top: 5px;
+            width: 300px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th, td {
+            padding: 3px;
+            text-align: left;
+            font-size: 12px;
+        }
+        
+        .form-container {
+            margin-top: 0px;
+        }
+        
+        .reset-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h4>Sandık No: {{ sandik_no }}</h4> <!-- Sandık numarasını gösteren satır -->
+        <h4>Okul No: {{ okul }}</h4> <!-- Okul numarasını gösteren satır -->
+        <div class="candidate-card">
+            <img src="{{ url_for('static', filename='images/aday1.jpg') }}" alt="1. Aday" class="candidate-img">
+            <div>
+                <h5>Kemal Kılıçdaroğlu</h5>
+                <form action="/oy_ver" method="post">
+                    <button type="submit" name="submit_button" id="btn_1_ekle" value="1_ekle" class="btn btn-success vote-btn">Oy Ekle</button>
+                    <button type="submit" name="submit_button" id="btn_1_cikar" value="1_cikar" class="btn btn-danger vote-btn">Oy Çıkar</button>
+                </form>
+            </div>
+            <div class="result-card ml-auto">
+                <h5>Oy Sayısı</h5>
+                <h3>{{ aday1_oylar }}</h3>
+            </div>
+        </div>
+        <div class="candidate-card">
+            <img src="{{ url_for('static', filename='images/aday2.jpg') }}" alt="2. Aday" class="candidate-img">
+            <div>
+                <h5>Diğer Aday</h5>
+                <form action="/oy_ver" method="post">
+                    <button type="submit" name="submit_button" id="btn_2_ekle" value="2_ekle" class="btn btn-success vote-btn">Oy Ekle</button>
+                    <button type="submit" name="submit_button" id="btn_2_cikar" value="2_cikar" class="btn btn-danger vote-btn">Oy Çıkar</button>
+                </form>
+            </div>
+            <div class="result-card ml-auto">
+                <h5>Oy Sayısı</h5>
+                <h3>{{ aday2_oylar }}</h3>
+            </div>
+        </div>
+        <form action="/oy_ver" method="post">
+            <button type="submit" name="submit_button" id="btn_gecersiz_ekle" value="gecersiz_ekle" class="btn btn-success vote-btn">Geçersiz Oy Ekle</button>
+            <button type="submit" name="submit_button" id="btn_gecersiz_cikar" value="gecersiz_cikar" class="btn btn-danger vote-btn">Geçersiz Oy Çıkar</button>
+        </form>
+        <form action="/sifirla" method="post">
+            <button type="submit" class="btn btn-warning reset-btn">Oy Sayacını Sıfırla</button>
+        </form>
+        <div class="result-heading">
+            <h5>Oy Sonuçları</h5>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <tr>
+                    <th>Toplam Geçerli Oy Sayısı</th>
+                    <td>{{ gecerli_oylar }}</td>
+                </tr>
+                <tr>
+                    <th>Toplam Geçersiz Oy Sayısı</th>
+                    <td>{{ gecersiz_oylar }}</td>
+                </tr>
+                <tr>
+                    <th>Toplam Oy Sayısı</th>
+                    <td>{{ gecerli_oylar + gecersiz_oylar }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="form-container">
+            <form action="/okul_sandik" method="post">
+                <div class="form-group">
+                    <label for="okul">Okul No:</label>
+                    <input type="text" name="okul" id="okul" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="sandik_no">Sandık No:</label>
+                    <input type="text" name="sandik_no" id="sandik_no" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">Gönder</button>
+            </form>
+        </div>
+        
+
+    </div>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    
+    
+
+    <script>
+        $(document).ready(function() {
+          $("#btn_1_ekle").click(function() {
+            $.post("/oy_ver", { submit_button: "1_ekle" }, function() {
+              location.reload();
+            });
+          });
+        
+          $("#btn_1_cikar").click(function() {
+            $.post("/oy_ver", { submit_button: "1_cikar" }, function() {
+              location.reload();
+            });
+          });
+        
+          $("#btn_2_ekle").click(function() {
+            $.post("/oy_ver", { submit_button: "2_ekle" }, function() {
+              location.reload();
+            });
+          });
+        
+          $("#btn_2_cikar").click(function() {
+            $.post("/oy_ver", { submit_button: "2_cikar" }, function() {
+              location.reload();
+            });
+          });
+        
+          $("#btn_gecersiz_ekle").click(function() {
+            $.post("/oy_ver", { submit_button: "gecersiz_ekle" }, function() {
+              location.reload();
+            });
+          });
+        
+          $("#btn_gecersiz_cikar").click(function() {
+            $.post("/oy_ver", { submit_button: "gecersiz_cikar" }, function() {
+              location.reload();
+            });
+          });
+        });
+        </script>
+        
+
+
+</body>
+</html>

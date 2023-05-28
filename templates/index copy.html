@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Oy Sayacı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .candidate-card {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .candidate-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+
+        .vote-btn {
+            margin-top: 10px;
+        }
+
+        .result-heading {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .result-card {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-card h5 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .result-card h3 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .table-container {
+            margin-top: 5px;
+            width: 300px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th, td {
+            padding: 3px;
+            text-align: left;
+            font-size: 12px;
+        }
+        
+        .form-container {
+            margin-top: 0px;
+        }
+        
+        .reset-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h4>Sandık No: {{ sandik_no }}</h4> <!-- Sandık numarasını gösteren satır -->
+        <h4>Okul No: {{ okul }}</h4> <!-- Okul numarasını gösteren satır -->
+        <div class="candidate-card">
+            <img src="{{ url_for('static', filename='images/aday1.jpg') }}" alt="1. Aday" class="candidate-img">
+            <div>
+                <h5>{{ oy_sayaci['adaylar']['1']['isim'] }}</h5>
+                <form action="/oy_ver" method="post">
+                    <button type="submit" name="submit_button" value="1_ekle" class="btn btn-success vote-btn">Oy Ekle</button>
+                    <button type="submit" name="submit_button" value="1_cikar" class="btn btn-danger vote-btn">Oy Çıkar</button>
+                </form>
+            </div>
+            <div class="result-card ml-auto">
+                <h5>Oy Sayısı</h5>
+                <h3 id="aday1_oylar">{{ oy_sayaci['adaylar']['1']['oylar'] }}</h3>
+            </div>
+        </div>
+        <div class="candidate-card">
+            <img src="{{ url_for('static', filename='images/aday2.jpg') }}" alt="2. Aday" class="candidate-img">
+            <div>
+                <h5>{{ oy_sayaci['adaylar']['2']['isim'] }}</h5>
+                <form action="/oy_ver" method="post">
+                    <button type="submit" name="submit_button" value="2_ekle" class="btn btn-success vote-btn">Oy Ekle</button>
+                    <button type="submit" name="submit_button" value="2_cikar" class="btn btn-danger vote-btn">Oy Çıkar</button>
+                </form>
+            </div>
+            <div class="result-card ml-auto">
+                <h5>Oy Sayısı</h5>
+                <h3 id="aday2_oylar">{{ oy_sayaci['adaylar']['2']['oylar'] }}</h3>
+            </div>
+        </div>
+        <form action="/oy_ver" method="post">
+            <button type="submit" name="submit_button" value="gecersiz_eklee" class="btn btn-success vote-btn">Geçersiz Oy Ekle</button>
+            <button type="submit" name="submit_button" value="gecersiz_cikarr" class="btn btn-danger vote-btn">Geçersiz Oy Çıkar</button>
+        </form>
+        <form action="/sifirla" method="post">
+            <button type="submit" class="btn btn-warning reset-btn">Oy Sayacını Sıfırla</button>
+        </form>
+        <div class="result-heading">
+            <h5>Oy Sonuçları</h5>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <tr>
+                    <th>Toplam Geçerli Oy Sayısı</th>
+                    <td id="gecerli_oylar">{{ oy_sayaci['gecerli_oylar'] }}</td>
+                </tr>
+                <tr>
+                    <th>Toplam Geçersiz Oy Sayısı</th>
+                    <td id="gecersiz_oylar">{{ oy_sayaci['gecersiz_oylar'] }}</td>
+                </tr>
+                <tr>
+                    <th>Toplam Oy Sayısı</th>
+                    <td>{{ oy_sayaci['gecerli_oylar'] + oy_sayaci['gecersiz_oylar'] }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="form-container">
+            <form action="/okul_sandik" method="post">
+                <div class="form-group">
+                    <label for="okul">Okul No:</label>
+                    <input type="text" name="okul" id="okul" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="sandik_no">Sandık No:</label>
+                    <input type="text" name="sandik_no" id="sandik_no" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">Gönder</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            function guncelleOySayisi(adayId, sayi) {
+                $('#' + adayId + '_oylar').text(sayi);
+            }
+
+            function guncelleGecerliOySayisi(sayi) {
+                $('#gecerli_oylar').text(sayi);
+            }
+
+            function guncelleGecersizOySayisi(sayi) {
+                $('#gecersiz_oylar').text(sayi);
+            }
+
+            $('.vote-btn').click(function(e) {
+                e.preventDefault();
+                var buttonValue = $(this).val();
+                var adayId;
+                var sayi;
+
+                if (buttonValue === '1_ekle' || buttonValue === '1_cikar') {
+                    adayId = 'aday1';
+                    sayi = parseInt($('#aday1_oylar').text());
+                } else if (buttonValue === '2_ekle' || buttonValue === '2_cikar') {
+                    adayId = 'aday2';
+                    sayi = parseInt($('#aday2_oylar').text());
+                }
+
+                if (buttonValue.endsWith('_ekle')) {
+                    sayi++;
+                } else if (buttonValue.endsWith('_cikarr') && sayi > 0) {
+                    sayi--;
+                }
+
+                guncelleOySayisi(adayId, sayi);
+
+                var gecerliOySayisi = parseInt($('#gecerli_oylar').text());
+                var gecersizOySayisi = parseInt($('#gecersiz_oylar').text());
+
+                if (buttonValue === 'gecersiz_eklee') {
+                    gecersizOySayisi++;
+                } else if (buttonValue === 'gecersiz_cikarr' && gecersizOySayisi > 0) {
+                    gecersizOySayisi--;
+                }
+
+                guncelleGecersizOySayisi(gecersizOySayisi);
+
+                if (buttonValue.endsWith('_ekle')) {
+                    gecerliOySayisi++;
+                } else if (buttonValue.endsWith('_cikar') && gecerliOySayisi > 0) {
+                    gecerliOySayisi--;
+                }
+
+                guncelleGecerliOySayisi(gecerliOySayisi);
+            });
+
+            $('.reset-btn').click(function(e) {
+                e.preventDefault();
+                guncelleOySayisi('aday1', 0);
+                guncelleOySayisi('aday2', 0);
+                guncelleGecerliOySayisi(0);
+                guncelleGecersizOySayisi(0);
+            });
+        });
+    </script>
+</body>
+</html>
